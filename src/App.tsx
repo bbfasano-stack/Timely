@@ -120,13 +120,19 @@ const App: React.FC = () => {
     setTimeout(() => setStatusMessage(''), 2000);
   };
 
-  const handleScheduleIt = () => {
-    if (!activeTask || activeTask.scheduled) return;
+  const handleScheduleAll = () => {
+    const pendingTasks = tasks.filter(task => task.status === 'Pending' && !task.scheduled);
+    if (pendingTasks.length === 0) return;
 
-    const updatedTask = { ...activeTask, scheduled: true, scheduledTime: selectedTime };
-    setTasks((prevTasks) => prevTasks.map((task, index) => (index === currentIndex ? updatedTask : task)));
-    setStatusMessage(`${activeTask.title} scheduled for ${selectedTime}.`);
-    setTimeout(() => setStatusMessage(''), 2000);
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.status === 'Pending' && !task.scheduled
+          ? { ...task, scheduled: true, scheduledTime: selectedTime }
+          : task,
+      ),
+    );
+    setStatusMessage(`Scheduled ${pendingTasks.length} pending task${pendingTasks.length === 1 ? '' : 's'} for ${selectedTime}.`);
+    setTimeout(() => setStatusMessage(''), 3000);
   };
 
   const handleMarkComplete = () => {
@@ -280,6 +286,9 @@ const App: React.FC = () => {
             <h2>Scheduled Tasks</h2>
             <p>{scheduledItems.length} task{scheduledItems.length === 1 ? '' : 's'} scheduled</p>
           </div>
+          <button className="button schedule-all" onClick={handleScheduleAll}>
+            Schedule All Pending
+          </button>
         </div>
 
         {statusMessage && (
